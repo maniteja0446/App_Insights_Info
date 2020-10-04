@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using WebApp_FrontEnd.Models;
 
 namespace WebApp_FrontEnd.Controllers
@@ -18,9 +20,18 @@ namespace WebApp_FrontEnd.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            List<WeatherForecast> weatherForecasts = new List<WeatherForecast>();
+            using (var httpClient = new HttpClient())
+            {
+                using (var response = await httpClient.GetAsync("https://azrg-wa-api.azurewebsites.net/weatherforecast"))
+                {
+                    string apiResponse = await response.Content.ReadAsStringAsync();
+                    weatherForecasts = JsonConvert.DeserializeObject<List<WeatherForecast>>(apiResponse);
+                }
+            }
+            return View(weatherForecasts);
         }
 
         public IActionResult Privacy()

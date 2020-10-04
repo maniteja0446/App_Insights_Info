@@ -6,10 +6,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using WebApi_Logic.Repository;
+using System.Web.Http.Cors;
+
 
 namespace WebApi_Logic
 {
@@ -26,6 +30,8 @@ namespace WebApi_Logic
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddApplicationInsightsTelemetry(Configuration);
+            services.AddDbContext<EmployeeDbContext>(item => item.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,7 +41,7 @@ namespace WebApi_Logic
             {
                 app.UseDeveloperExceptionPage();
             }
-
+           app.UseCors();
             app.UseHttpsRedirection();
 
             app.UseRouting();
